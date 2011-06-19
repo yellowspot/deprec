@@ -53,8 +53,8 @@ require "#{File.dirname(__FILE__)}/recipes/lvm"
 require "#{File.dirname(__FILE__)}/recipes/vnstat"
 require "#{File.dirname(__FILE__)}/recipes/utils"
 
-
 require "#{File.dirname(__FILE__)}/recipes/erlang"
+require "#{File.dirname(__FILE__)}/recipes/rabbitmq"
 
 # Retired recipes
 #
