@@ -60,9 +60,7 @@ module Std
   # +options+ are as for *put*
   #
   def su_put(data, destination, temporary_area='/tmp', options={})
-    print "su_put #{destination}\n"
     temporary_area = File.join(temporary_area,"#{File.basename(destination)}-$CAPISTRANO:HOST$")
-    print "su_put #{temporary_area}\n"
     put(data, temporary_area, options)
     send run_method, <<-CMD
       sh -c "install -m#{sprintf("%3o",options[:mode]||0755)} #{temporary_area} #{destination} &&
