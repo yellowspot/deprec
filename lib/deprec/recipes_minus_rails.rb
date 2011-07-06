@@ -55,7 +55,7 @@ require "#{File.dirname(__FILE__)}/recipes/utils"
 
 require "#{File.dirname(__FILE__)}/recipes/erlang"
 require "#{File.dirname(__FILE__)}/recipes/rabbitmq"
-
+require "#{File.dirname(__FILE__)}/recipes/rvm"
 # Retired recipes
 #
 # require "#{File.dirname(__FILE__)}/recipes/integrity"
