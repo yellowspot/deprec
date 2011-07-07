@@ -2,6 +2,8 @@ Capistrano::Configuration.instance(:must_exist).load do
   namespace :deprec do
     namespace :rvm do
 
+      #TODO this will not install newer version if one already exists on the server
+      #simply exists if rvm is found
       task :install do
         next if capture("type rvm | head -1") =~ /rvm is \/usr\/local\/bin\/rvm/
 
