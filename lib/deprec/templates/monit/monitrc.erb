@@ -113,7 +113,9 @@ set logfile <%= monit_log %>
 #
 <% if monit_webserver_enabled %>
 set httpd port <%= monit_webserver_port %> and
+  <% if monit_webserver_address %>
      use address <%= monit_webserver_address %>  # listen on <%= monit_webserver_address %>
+  <% end %>   
   <% monit_webserver_allowed_hosts_and_networks.each do |host| %>
      allow <%= host %> # allow <%= host %> to connect to the server
   <% end %>

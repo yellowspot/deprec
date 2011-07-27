@@ -5,7 +5,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       #TODO this will not install newer version if one already exists on the server
       #simply exists if rvm is found
       task :install do
-        next if capture("type rvm | head -1") =~ /rvm is \/usr\/local\/bin\/rvm/
+        #next if capture("type rvm | head -1") =~ /rvm is \/usr\/local\/bin\/rvm/
 
         install_deps
         deprec2.download_src({:url => "https://rvm.beginrescueend.com/install/rvm"})
@@ -19,12 +19,18 @@ Capistrano::Configuration.instance(:must_exist).load do
 )}, :stable)        
       end
 
+      task :upgrade do
+        run "#{sudo} rvm get head"
+        run "#{sudo} rvm reload"
+      end
+      
       task :install_rubies do
         list = capture "rvm list"
-        next if list =~ /ruby-1\.8\.7/ && list =~ /ruby-1\.9\.2/
+        next if list =~ /ruby-1\.8\.7/ && list =~ /ruby-1\.9\.2/ && list =~ /ree/
         
         run "#{sudo} rvm install 1.8.7"
         run "#{sudo} rvm install 1.9.2"
+        run "#{sudo} rvm install ree"
         run "#{sudo} rvm use 1.8.7 --default"
       end
     end
