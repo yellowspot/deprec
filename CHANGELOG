@@ -1,5 +1,23 @@
 # deprec changelog
 
+= 2.2.3  (Jul 15, 2011)
+
+* deprec now provides rake tasks
+
+  Add this to your Rakefile
+
+    require 'deprec/rake'
+
+  or you could even add this to your Gemfile
+
+    gem 'deprec', :require => 'deprec/rake'
+
+= 2.2.0  (Jul 10, 2011)
+
+* First release since rewrite of http://deprec.org
+* Tidy up of various recipes
+* Introduction of deprec:rack namespace
+
 = 2.1.20 (Mar 4, 2011)
 
 * generate apache vhost to current dir if config/ not present

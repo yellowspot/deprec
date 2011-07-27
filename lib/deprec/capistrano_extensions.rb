@@ -12,6 +12,7 @@ module Deprec2
     yield
     ENV['ROLES'] = old_roles.to_s unless ENV['HOSTS']
   end
+
   
   # Temporarily ignore ROLES and HOSTS
   def ignoring_roles_and_hosts
@@ -388,33 +389,6 @@ module Deprec2
       end
     end
   end
-
-  # We don't need this. Put 'USER=root' on the command line instead.
-  #
-  # XXX Not working in deprec2
-  # ##
-  # # Run a command using the root account.
-  # #
-  # # Some linux distros/VPS providers only give you a root login when you install.
-  # 
-  # def run_as_root(shell_command)
-  #   std.connect_as_root do |tempuser|
-  #     run shell_command
-  #   end
-  # end
-  # 
-  # ##
-  # # Run a task using root account.
-  # #
-  # # Some linux distros/VPS providers only give you a root login when you install.
-  # #
-  # # tempuser: contains the value replaced by 'root' for the duration of this call
-  # 
-  # def as_root()
-  #   std.connect_as_root do |tempuser|
-  #     yield tempuser
-  #   end
-  # end
 
   private
 
