@@ -36,6 +36,13 @@ module Apt
     }, options)
   end
 
+  def get(packages)
+    packages = [packages] if packages.kind_of?(String)    
+    send(run_method, %{
+      sh -c "#{APT_GET} -qyu --force-yes install #{packages.join(' ')}"
+    }, {})
+  end
+
   # Run an apt clean
   def clean(options={})
     send(run_method, %{sh -c "#{APT_GET} -qy clean"}, options)

@@ -20,12 +20,18 @@ Capistrano::Configuration.instance(:must_exist).load do
         deprec::freetds::install
         apt.install({:base => %w(subversion zlib1g-dev uuid-dev)}, :stable)
         zeromq
-        run "#{sudo} rvm gem install --no-rdoc --no-ri bundler"
-        deprec::monit::install
+        gems
+        #deprec::monit::install
       end
 
-      desc "zeromq instalacija, s podrskom za mulicasting"
+      task :gems do
+        run "#{sudo} #{rvm_bin_path}/rvm gem install --no-rdoc --no-ri bundler god"
+        run "#{sudo} #{rvm_bin_path}/rvm wrapper ruby-1.9.2 bootup god"
+      end
+
+      desc "zeromq instalacija, s podrskom za multicasting"
       task :zeromq do
+        next unless capture("if[ -e /usr/local/lib/libzmq.so ]; then echo 'installed' ; fi").empty?
         zeromq_src = {:url => "http://download.zeromq.org/zeromq-2.1.7.tar.gz",
           :configure => "./configure --with-pgm"}
         deprec2.download_src(zeromq_src, src_dir)

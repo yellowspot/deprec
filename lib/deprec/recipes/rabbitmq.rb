@@ -1,5 +1,4 @@
 Capistrano::Configuration.instance(:must_exist).load do
-  namespace :deprec do
     namespace :rabbitmq do
 
       set :rabbtimq_user_uid, 899
@@ -20,7 +19,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       task :install do
         create_user
         apt.add_source "deb http://www.rabbitmq.com/debian/ testing main", "http://www.rabbitmq.com/rabbitmq-signing-key-public.asc"
-        apt.install( {:base => %w(rabbitmq-server=2.5.0-1)}, :stable )
+        apt.get %w(rabbitmq-server=2.5.0-1)
         set_erlang_cookie
         install_plugins
         config
@@ -69,5 +68,4 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
 
     end
-  end
 end

@@ -1,0 +1,47 @@
+God.pid_file_directory = '/var/run/god'  
+
+God::Contacts::Email.defaults do |d|
+  d.from_email      = 'god@minus5.hr'
+  d.from_name       = 'God'
+  d.delivery_method = :smtp
+  d.server_host     = "mail.t-com.hr"
+end
+
+God.contact(:email) do |c|
+  c.name     = 'ianic'
+  c.group    = 'developers'
+  c.to_email = 'ianic@minus5.hr'
+end
+
+God.contact(:campfire) do |c|
+  c.name      = 'campfire'
+  c.subdomain = 'minus5'
+  c.room      = 'notifications'
+  c.token     = '8a0364bf677f7f0be8c16855ae95dce75f227ad3' #good_genie
+  c.ssl       = true
+end
+
+#preuredi izgled poruke na Campfire-us
+module God
+  module Contacts
+
+    class Campfire < Contact
+      self.format = lambda do |message, time, priority, category, host|
+        #default was: 
+        # "[#{time.strftime('%H:%M:%S')}] #{host} - #{message}"
+
+        <<-EOF
+Time: #{time.strftime('%Y-%m-%d %H:%M:%S')}
+Host: #{host}
+
+Message:  #{message}
+Priority: #{priority}
+Category: #{category}
+        EOF
+
+      end
+    end
+  end
+end
+
+God.load "/etc/god.d/*.god"  # load in all god configs

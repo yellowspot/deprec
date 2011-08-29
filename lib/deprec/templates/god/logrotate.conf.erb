@@ -1,0 +1,19 @@
+/var/log/god.log {
+  daily
+  rotate 7
+  dateext
+  missingok
+	delaycompress
+  compress
+  copytruncate
+}
+
+/var/log/god/*.log {
+  daily
+  rotate 30
+  dateext
+  missingok
+	delaycompress
+  compress
+  copytruncate
+}
