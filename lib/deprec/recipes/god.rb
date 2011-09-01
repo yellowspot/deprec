@@ -26,9 +26,11 @@ Capistrano::Configuration.instance(:must_exist).load do
       run "#{sudo} mkdir -p /var/run/god"
       run "#{sudo} mkdir -p /var/log/god"
       #FIXME -napravi usera pod kojim se vrte sve aplikacije npr. runner, pa onda samo njemu daj pravo na dir
-      run "#{sudo} chmod a+rw /var/log/god"
+      run "#{sudo} chown runner /var/log/god"
+      run "#{sudo} chgrp runner /var/log/god"
       config_gen
       config
+      start
     end
 
     [:start, :stop, :restart, :status].each do |task|

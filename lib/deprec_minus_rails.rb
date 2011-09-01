@@ -10,3 +10,4 @@ require "#{File.dirname(__FILE__)}/vmbuilder_plugins/all"
 # This excludes the 'before' and 'after' tasks deprec adds to 
 # facilitate rails setup.
 require "#{File.dirname(__FILE__)}/deprec/recipes_minus_rails"
+

@@ -3,6 +3,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     #TODO this will not install newer version if one already exists on the server
     #simply exists if rvm is found
+    desc "Install RVM - Ruby Version Manager"
     task :install do
       #next if capture("type rvm | head -1") =~ /rvm is \/usr\/local\/bin\/rvm/
 
@@ -23,8 +24,9 @@ Capistrano::Configuration.instance(:must_exist).load do
       run "#{sudo} #{rvm_bin_path}/rvm reload"
     end
     
+    desc "Install our rubies ree, 1.8.7, 1.9.2"
     task :install_rubies do
-      list = capture "#{rvm_bin_path}/rvm list"
+      list = capture "#{sudo} #{rvm_bin_path}/rvm list"
       rubies = %w(ruby-1.8.7-p352 ruby-1.9.2-p290 ree-1.8.7-2011.03)
 
       rubies.each do |ruby|

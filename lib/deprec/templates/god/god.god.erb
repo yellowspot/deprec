@@ -2,9 +2,8 @@ God.pid_file_directory = '/var/run/god'
 
 God::Contacts::Email.defaults do |d|
   d.from_email      = 'god@minus5.hr'
-  d.from_name       = 'God'
   d.delivery_method = :smtp
-  d.server_host     = "mail.t-com.hr"
+  d.server_host     = '<%= smtp_server_host %>'
 end
 
 God.contact(:email) do |c|

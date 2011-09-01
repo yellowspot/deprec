@@ -14,7 +14,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         end 
       }
       set(:users_make_admin) { 
-        Capistrano::CLI.ui.ask "Should this be an admin account?" do |q| 
+        Capistrano::CLI.ui.ask "Should this be an admin account ?" do |q| 
           q.default = 'no'; 
         end 
       }

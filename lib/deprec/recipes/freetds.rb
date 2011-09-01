@@ -1,6 +1,7 @@
 Capistrano::Configuration.instance(:must_exist).load do
   namespace :freetds do
 
+    desc "Install freetds"
     task :install do
       apt.get %w(freetds-bin freetds-common freetds-dev libct4 libsybdb5)
       initial_config

@@ -23,13 +23,7 @@ module Minus5
 
 end
 
-#defaults
-Capistrano::Configuration.instance(:must_exist).load do 
-  set :rvm_bin_path, "/usr/local/rvm/bin"  
-  default_run_options[:pty] = true
-end
-
-#recipes
+require "#{File.dirname(__FILE__)}/recipes/defaults"
 require "#{File.dirname(__FILE__)}/recipes/erlang"
 require "#{File.dirname(__FILE__)}/recipes/rabbitmq"
 require "#{File.dirname(__FILE__)}/recipes/rvm"
@@ -37,4 +31,14 @@ require "#{File.dirname(__FILE__)}/recipes/freetds"
 require "#{File.dirname(__FILE__)}/recipes/god"
 require "#{File.dirname(__FILE__)}/recipes/zeromq"
 require "#{File.dirname(__FILE__)}/recipes/timezone"
+require "#{File.dirname(__FILE__)}/recipes/config"
 require "#{File.dirname(__FILE__)}/recipes/minus5"
+require "#{File.dirname(__FILE__)}/recipes/log"
+
+
+#add recipes dir to load path, so one could require single recipe
+$: << File.expand_path(File.join(File.dirname(__FILE__), "recipes"))
+#recipes that sould be loaded if needed:
+# require "god_action_tasks.rb"
+# require "deploy_without_rails_dirs.rb"
+ 

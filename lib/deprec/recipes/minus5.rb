@@ -46,27 +46,6 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
   end
 
-  namespace :minus5 do
-    desc "Generate configuration file(s) from template(s)"
-    task :config_gen do
-      project_config_files.each do|file|
-        deprec2.render_template("", file)
-      end
-    end
-
-    desc "Push config files to server"
-    task :config do
-      deprec2.push_configs("", project_config_files)
-      project_config_files.each do |file|
-        if file[:symlink_to]
-          deprec2.mkdir(File.dirname(file[:symlink_to]), :via => :sudo)
-          sudo "ln -sf #{file[:path]} #{file[:symlink_to]}"
-        end
-      end
-    end
-
-  end
-
   after "deploy:setup", "fix_dir_permissions"
   desc "change group to deploy_group on dirs created during deploy:setup"
   task :fix_dir_permissions do

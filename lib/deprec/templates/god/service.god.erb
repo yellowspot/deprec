@@ -1,0 +1,103 @@
+God.watch do |w|
+  w.name          = '<%=application%>'
+  w.interval      = 10.seconds 
+  w.dir           = '<%=current_path%>'
+  w.start         = '<%=start_command%>'
+  <% if exists?(:runner) %>
+  w.uid           = '<%=runner%>'
+  w.gid           = '<%=runner%>'
+  w.env           = { 'HOME' => "/home/<%=runner%>" }
+  <% else %>
+  w.env           = { 'HOME' => "/" }
+  <% end %>
+  w.log           = '<%=log_file_path%>'
+  w.start_grace   = 10.seconds
+  w.restart_grace = 10.seconds
+
+  def notify(c, msg, level)
+    c.notify   = {
+      :contacts => [<%= notify_contacts.map{|c| "'#{c}'"}.join(',')%>], 
+      :priority => level, 
+      :category => msg } 
+  end
+
+  def notify_error(c, msg)
+    notify c, msg, "ERROR"
+  end
+
+  def notify_info(c, msg)
+    notify c, msg, "INFO"
+  end
+
+  # clean pid files before start if necessary
+  w.behavior(:clean_pid_file)
+  
+  # determine the state on startup
+  w.transition(:init, { true => :up, false => :start }) do |on|
+    on.condition(:process_running) do |c|
+      c.running = true
+    end
+  end
+  
+  # determine when process has finished starting
+  w.transition([:start, :restart], :up) do |on|
+    on.condition(:process_running) do |c|
+      c.running = true
+      notify_info c, "started"
+    end
+
+    # if is not started in 5 intervals, try again
+    on.condition(:tries) do |c|
+      c.times = 5
+      c.transition = :start
+      notify_error c, "process is not started after 5 intervals, restarting"
+    end
+  end
+
+  # start if process is not running
+  w.transition(:up, :start) do |on|
+    on.condition(:process_exits) do |c|
+      notify_info c, "exited"
+    end
+  end
+
+  # restart if memory or cpu is too high, or log file is not changed
+  w.transition(:up, :restart) do |on|
+    on.condition(:memory_usage) do |c|
+      c.interval = 30.seconds
+      c.above    = 200.megabytes
+      c.times    = 5 #[3, 5] # 3 out of 5 intervals
+      notify_error c, 'memory usage above 200Mb in 5 intervals of 30 seconds, restarting'
+    end
+
+    on.condition(:cpu_usage) do |c|
+      c.interval = 30.seconds
+      c.above    = 50.percent
+      c.times    = 5
+      notify_error c, 'cpu usage above 50% in 5 intervals of 30 seconds, restarting'
+    end
+
+    on.condition(:file_mtime) do |c|      
+      c.interval = 30.seconds
+      c.path     = "<%=log_file_path%>"
+      c.max_age  = 10.minutes
+      notify_error c, 'log file is not changed for 10 minutes, restarting'
+    end
+  end
+  
+  w.lifecycle do |on|
+    on.condition(:flapping) do |c|        
+                                              # if this watch 
+      c.to_state     = [:start, :restart]     # is started or restarted
+      c.times        = 3                      # x times
+      c.within       = 1.hour                 # withing x minutes
+      c.transition   = :unmonitored           # then unmonitor it...
+      c.retry_in     = 1.minute               # then after x minutes, monitor it again
+
+      c.retry_times  = 2147483647             # if the process is seen to be flapping x times 
+      c.retry_within = 1.hour                 # within x hours
+                                              # then give up completely.
+      notify_error c, '5 restarts within 1 hour'  
+    end
+  end
+end
