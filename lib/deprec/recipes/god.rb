@@ -20,12 +20,12 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "god install"
     task :install do
-      run "#{sudo} #{rvm_bin_path}/rvm gem install --no-rdoc --no-ri god"
+      run "#{sudo} #{rvm_bin_path}/rvm gem install --no-rdoc --no-ri god json"
       run "#{sudo} #{rvm_bin_path}/rvm wrapper ruby-1.9.2 bootup god"
+      run "#{sudo} #{rvm_bin_path}/rvm wrapper ree-1.8.7-2011.03 bootup god"
       run "#{sudo} mkdir -p /etc/god.d"
       run "#{sudo} mkdir -p /var/run/god"
       run "#{sudo} mkdir -p /var/log/god"
-      #FIXME -napravi usera pod kojim se vrte sve aplikacije npr. runner, pa onda samo njemu daj pravo na dir
       run "#{sudo} chown runner /var/log/god"
       run "#{sudo} chgrp runner /var/log/god"
       config_gen
