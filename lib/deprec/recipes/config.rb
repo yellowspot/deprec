@@ -14,7 +14,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       project_config_files.each do |file|
         if file[:symlink_to]
           deprec2.mkdir(File.dirname(file[:symlink_to]), :via => :sudo)
-          sudo "rm #{file[:symlink_to]}"
+          sudo "rm -f #{file[:symlink_to]}"
           sudo "ln -sf #{file[:path]} #{file[:symlink_to]}"
         end
       end

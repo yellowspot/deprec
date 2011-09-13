@@ -65,9 +65,9 @@ God.watch do |w|
   w.transition(:up, :restart) do |on|
     on.condition(:memory_usage) do |c|
       c.interval = 30.seconds
-      c.above    = 200.megabytes
-      c.times    = 5 #[3, 5] # 3 out of 5 intervals
-      notify_error c, 'memory usage above 200Mb in 5 intervals of 30 seconds, restarting'
+      c.above    = <%= god_max_memory_usage_megabytes %>.megabytes
+      c.times    = 5
+      notify_error c, 'memory usage above <%= god_max_memory_usage_megabytes %>Mb in 5 intervals of 30 seconds, restarting'
     end
 
     on.condition(:cpu_usage) do |c|
@@ -77,12 +77,14 @@ God.watch do |w|
       notify_error c, 'cpu usage above 50% in 5 intervals of 30 seconds, restarting'
     end
 
+    <% if god_log_file_inactivity_minutes > 0 %>
     on.condition(:file_mtime) do |c|      
       c.interval = 30.seconds
-      c.path     = "<%=log_file_path%>"
-      c.max_age  = 10.minutes
-      notify_error c, 'log file is not changed for 10 minutes, restarting'
+      c.path     = "<%= log_file_path %>"
+      c.max_age  = <%= god_log_file_inactivity_minutes %>.minutes
+      notify_error c, 'log file is not changed for <%= god_log_file_inactivity_minutes %> minutes, restarting'
     end
+    <% end %>
   end
   
   w.lifecycle do |on|

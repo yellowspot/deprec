@@ -24,4 +24,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   set :log_file_path,   Proc.new { "/var/log/god/#{application}.log" }
   set :start_command,   Proc.new { "/usr/local/rvm/bin/#{rvm_ruby_string} bin/#{application}.rb" }
   set :notify_contacts, ['ianic', 'campfire'] 
+  
+  set :god_log_file_inactivity_minutes, 10
+  set :god_max_memory_usage_megabytes, 200
 end
