@@ -4,8 +4,10 @@ Capistrano::Configuration.instance(:must_exist).load do
   require "bundler/capistrano"
   set :bundle_cmd, Proc.new{ "/usr/local/rvm/gems/#{rvm_ruby_string}/bin/bundle" }
 
-  $:.unshift(File.expand_path('./lib', ENV['rvm_path']))
-  require "rvm/capistrano"
+  unless exists?(:no_rvm)
+    $:.unshift(File.expand_path('./lib', ENV['rvm_path']))
+    require "rvm/capistrano"
+  end
 
   default_run_options[:pty] = true
   
@@ -19,7 +21,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   set :svn_arguments, "--username deploy --password deploy --no-auth-cache"
   set :repository,    Proc.new { "#{svn_arguments} #{svn_root}" }
 
-  #options for god config - start_command should be set in 
+  #options for god config
   set :runner,          "runner"
   set :log_file_path,   Proc.new { "/var/log/god/#{application}.log" }
   set :start_command,   Proc.new { "/usr/local/rvm/bin/#{rvm_ruby_string} bin/#{application}.rb" }
