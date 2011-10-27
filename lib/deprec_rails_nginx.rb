@@ -6,7 +6,7 @@ require "#{File.dirname(__FILE__)}/deprec/capistrano_extensions"
 require "#{File.dirname(__FILE__)}/vmbuilder_plugins/all"
 
 #load minimal required recipes
-%w(deprec defaults config log).
+%w(deprec ssh users defaults config log).
   each do |recipe|
   require recipes_dir = "#{File.dirname(__FILE__)}/deprec/recipes/#{recipe}.rb"
 end
@@ -35,5 +35,19 @@ Capistrano::Configuration.instance(:must_exist).load do
     run "#{try_sudo} chgrp #{group} #{dirs.join(' ')}"
   end
   after "deploy:setup", "fix_dir_permissions"
+
+  desc "create user remotely add it to admin and deploy group"
+  task :useradd do 
+    set(:users_target_user) { 
+      Capistrano::CLI.ui.ask "Enter userid" do |q| 
+        q.default = current_user; 
+      end 
+    }
+    deprec2.groupadd :deploy
+    deprec2.useradd users_target_user
+    deprec2.add_user_to_group users_target_user, :deploy
+    deprec2.add_user_to_group users_target_user, :admin
+    top.deprec.users.passwd
+  end
 
 end
