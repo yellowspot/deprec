@@ -6,7 +6,7 @@ require "#{File.dirname(__FILE__)}/deprec/capistrano_extensions"
 require "#{File.dirname(__FILE__)}/vmbuilder_plugins/all"
 
 #load minimal required recipes
-%w(deprec ssh users defaults config log).
+%w(deprec ssh users defaults config log mysql).
   each do |recipe|
   require recipes_dir = "#{File.dirname(__FILE__)}/deprec/recipes/#{recipe}.rb"
 end
