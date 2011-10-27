@@ -100,22 +100,26 @@ Capistrano::Configuration.instance(:must_exist).load do
   namespace :deprec do
     
     task :connect_canonical_tasks do      
+
+      begin
       # link application specific recipes into canonical task names
       # e.g. deprec:web:restart => deprec:nginx:restart 
       
       
-      namespaces_to_connect = { :web => :web_server_type,
-                                :app => :app_server_type,
-                                :db  => :db_server_type,
-                                :ruby => :ruby_vm_type
-                              }
-      metaclass = class << self; self; end # XXX unnecessary?
-      namespaces_to_connect.each do |server, choice|
-        server_type = send(choice).to_sym
-        if server_type != :none
+        namespaces_to_connect = { :web => :web_server_type,
+          :app => :app_server_type,
+          :db  => :db_server_type,
+          :ruby => :ruby_vm_type
+        }
+        metaclass = class << self; self; end # XXX unnecessary?
+        namespaces_to_connect.each do |server, choice|
+          server_type = send(choice).to_sym
+          if server_type != :none
           metaclass.send(:define_method, server) { namespaces[server] } # XXX unnecessary?
           namespaces[server] = deprec.send(server_type)          
         end
+        end
+      rescue => e
       end
     end
 

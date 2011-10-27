@@ -5,13 +5,16 @@ Capistrano::Configuration.instance(:must_exist).load do
     #simply exists if rvm is found
     desc "Install RVM - Ruby Version Manager"
     task :install do
-      #next if capture("type rvm | head -1") =~ /rvm is \/usr\/local\/bin\/rvm/
+      rvm::install_rvm
+      rvm::install_rubies
+    end
 
+    task :install_rvm do
+      #next if capture("type rvm | head -1") =~ /rvm is \/usr\/local\/bin\/rvm/
       install_deps
       deprec2.download_src({:url => "https://rvm.beginrescueend.com/install/rvm"})
       run "#{sudo} chmod +x #{src_dir}/rvm"
       run "#{sudo} #{src_dir}/rvm"
-      rvm::install_rubies
     end
     
     task :install_deps do

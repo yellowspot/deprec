@@ -34,6 +34,7 @@ require "#{File.dirname(__FILE__)}/recipes/timezone"
 require "#{File.dirname(__FILE__)}/recipes/config"
 require "#{File.dirname(__FILE__)}/recipes/minus5"
 require "#{File.dirname(__FILE__)}/recipes/log"
+require "#{File.dirname(__FILE__)}/recipes/passenger_nginx.rb"
 
 
 #add recipes dir to load path, so one could require single recipe

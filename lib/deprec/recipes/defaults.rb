@@ -7,6 +7,8 @@ Capistrano::Configuration.instance(:must_exist).load do
   unless exists?(:no_rvm)
     $:.unshift(File.expand_path('./lib', ENV['rvm_path']))
     require "rvm/capistrano"
+    df = default_shell
+    set :shell_with_rvm, Proc.new { df }
   end
 
   default_run_options[:pty] = true
