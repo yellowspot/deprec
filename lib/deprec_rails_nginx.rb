@@ -50,4 +50,14 @@ Capistrano::Configuration.instance(:must_exist).load do
     top.deprec.users.passwd
   end
 
+  after 'deploy:update_code', 'symlink_configs'
+  task :symlink_configs do
+    project_config_files.each do |config|
+      if config.has_key?(:release_path)        
+        run "rm -f #{config[:release_path]}"
+        run "ln -s #{config[:path]} #{config[:release_path]}"
+      end
+    end
+  end
+
 end
