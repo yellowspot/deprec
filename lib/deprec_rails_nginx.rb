@@ -5,19 +5,23 @@ end
 require "#{File.dirname(__FILE__)}/deprec/capistrano_extensions"
 require "#{File.dirname(__FILE__)}/vmbuilder_plugins/all"
 
-#load minimal required recipes
-%w(deprec ssh users defaults config log mysql).
+#add recipes dir to load path, so one could require single recipe 
+$: << File.expand_path(File.join(File.dirname(__FILE__), "deprec", "recipes"))
+
+%w(canonical deprec ssh users config log mysql rbenv passenger_nginx).
   each do |recipe|
-  require recipes_dir = "#{File.dirname(__FILE__)}/deprec/recipes/#{recipe}.rb"
+  require "#{File.dirname(__FILE__)}/deprec/recipes/#{recipe}.rb"
 end
 
 Capistrano::Configuration.instance(:must_exist).load do 
   
-  #defaults customization
-  set :rvm_ruby_string , 'ruby-1.9.2-p290'
-  set :deploy_to       , Proc.new { "/var/www/apps/#{application}" }
-  set :log_file_path   , Proc.new { "#{shared_path}/log/#{stage}.log" }
-  set :server_type     , "nginx"
+  #deployment options - application and svn_root should be set in deploy.rb
+  set :deploy_group  , "deploy"
+  set :deploy_to     , Proc.new { "/var/www/apps/#{application}" }
+  set :svn_arguments , "--username deploy --password deploy --no-auth-cache"
+  set :repository    , Proc.new { "#{svn_arguments} #{svn_root}" }
+  set :log_file_path , Proc.new { "#{shared_path}/log/#{stage}.log" }
+  set :server_type   , "nginx"
 
   namespace :deploy do
     task :start do ; end
@@ -59,5 +63,29 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
     end
   end
+
+  ###############
+  # dorada da ne radi assets precompile na serveru, nego lokalno pa ih upload-a
+  before "deploy:update_code", "assets_precompile"
+  after  "deploy:update_code", "assets_upload"
+
+  task "assets_precompile" do
+    system("rm ./public/assets/*")
+    system("bundle exec rake assets:precompile") 
+  end
+
+  task "assets_upload" do
+    upload("./public/assets", "#{shared_path}", :via=> :scp, :recursive => true)
+  end
+
+  namespace :deploy do
+    namespace :assets do
+      task :precompile do
+        # do not precompile assets on the server
+      end
+    end
+  end
+  ###############
+
 
 end

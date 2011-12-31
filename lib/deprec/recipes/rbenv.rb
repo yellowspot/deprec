@@ -56,7 +56,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
     end
 
-    task :set_environment do
+#    task :set_environment do
       set :rbenv_root, "/usr/local/rbenv"
       set :rbenv_bin, "RBENV_ROOT=#{rbenv_root} /usr/local/rbenv/bin/rbenv"
       set :rbenv_sudo_path, "PATH=#{rbenv_root}/shims:#{rbenv_root}/bin:$PATH RBENV_ROOT=#{rbenv_root}"
@@ -65,7 +65,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         'PATH' => "#{rbenv_root}/shims:#{rbenv_root}/bin:$PATH",
         'RBENV_ROOT' => rbenv_root
       }
-    end
+#    end
 
   end
 end

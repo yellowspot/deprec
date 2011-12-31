@@ -88,6 +88,10 @@ Capistrano::Configuration.instance(:must_exist).load do
            end
         end
       end
+
+      task :set_admin_password do
+        run "mysqladmin -u root password #{mysql_admin_pass}"
+      end
             
     end
   end
