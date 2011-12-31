@@ -1,3 +1,4 @@
+#FIXME - rvm dependent
 Capistrano::Configuration.instance(:must_exist).load do 
   namespace :god do 
 

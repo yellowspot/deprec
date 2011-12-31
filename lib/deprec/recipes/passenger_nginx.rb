@@ -1,21 +1,25 @@
-# Copyright 2006-2008 by Mike Bailey. All rights reserved.
 Capistrano::Configuration.instance(:must_exist).load do 
   namespace :passenger_nginx do 
     
-    set :passenger_version, '3.0.9'
+    set :passenger_version       , '3.0.11'
+    set :passenger_root          , "#{rbenv_root}/versions/1.9.2-p290/lib/ruby/gems/1.9.1/gems/passenger-3.0.11"
+    set :passenger_ruby          , "#{rbenv_root}/versions/1.9.2-p290/bin/ruby"
+    set :passenger_nginx_install , "#{rbenv_root}/versions/1.9.2-p290/bin/passenger-install-nginx-module"
 
     task :install do
+      unless capture("if [ -e /opt/local/nginx ]; then echo 'installed' ; fi").empty?
+        logger.info "nginx is already installed"
+        next
+      end
       passenger
       config
+      start
     end
     
     task :passenger do
-      apt.get %w(libcurl4-openssl-dev)
-      # naredne dvije linije vjerojatno nisu potrebne - probaj bez toga u slijedecoj iteraciji pa ih onda makni
-      # run "#{sudo} #{rvm_bin_path}/rvm 1.9.2 --passenger"
-      # run "#{sudo} #{rvm_bin_path}/rvm 1.9.2"
-      run "#{sudo} #{rvm_bin_path}/gem install passenger --version=#{passenger_version} --no-rdoc --no-ri"
-      run "rvmsudo passenger-install-nginx-module --auto --auto-download --prefix=/opt/nginx --extra-configure-flags='--with-http_gzip_static_module'"
+      apt.get %w(libcurl4-openssl-dev libpcre3 libpcre3-dev)
+      cap_rbenv.sudo "gem install passenger --version=#{passenger_version} --no-rdoc --no-ri"
+      cap_rbenv.sudo "#{passenger_nginx_install} --auto --auto-download --prefix=/opt/nginx --extra-configure-flags='--with-http_gzip_static_module'"
       config
     end
 
@@ -29,7 +33,18 @@ Capistrano::Configuration.instance(:must_exist).load do
       config_push
     end
 
+    ["start", "stop", "restart"].each do |t|
+      task t.to_sym do 
+        sudo "service nginx #{t}"
+      end
+    end
+
+    #FIXME - ovdje postoji i init.d i upstart skripta, izbaci init.d
     SYSTEM_CONFIG_FILES[:passenger_nginx] = [
+                                             {:template => 'upstart.conf',
+                                               :path => '/etc/init/nginx.conf',
+                                               :mode => 0644,
+                                               :owner => 'root:root'},
                                              {:template => 'nginx.conf.erb',
                                                :path => '/etc/nginx/nginx.conf',
                                                :mode => 0755,
@@ -41,20 +56,9 @@ Capistrano::Configuration.instance(:must_exist).load do
                                              {:template => 'logrotate.conf.erb',
                                                :path => '/etc/logrotate.d/god.conf',
                                                :mode => 0644,
-                                               :owner => 'root:root'}                                       
-                                            ]
+                                               :owner => 'root:root'}                                                                              ]
 
-    desc "Generate Nginx configs from template."
-    task :config_gen do
-      SYSTEM_CONFIG_FILES[:passenger_nginx].each do |file|
-        deprec2.render_template(:passenger_nginx, file)
-      end
-    end
-
-    desc "Push Nginx configs to server"
-    task :config_push, :roles => :app do
-      deprec2.push_configs(:passenger_nginx, SYSTEM_CONFIG_FILES[:passenger_nginx])
-    end
+    Helpers.define_config_tasks self, :passenger_nginx
 
   end
 end

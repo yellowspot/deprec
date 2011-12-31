@@ -16,6 +16,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   #paths
   set :rvm_bin_path, "/usr/local/rvm/bin"    
   set :god_bin, '/usr/local/rvm/wrappers/ruby-1.9.2-p290/god'
+  set :gem_bin, "#{rvm_bin_path}/gem"
   
   #deployment options - application and svn_root should be set in deploy.rb
   set :deploy_group,  "deploy"
