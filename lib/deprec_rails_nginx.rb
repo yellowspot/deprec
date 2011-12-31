@@ -13,6 +13,8 @@ $: << File.expand_path(File.join(File.dirname(__FILE__), "deprec", "recipes"))
   require "#{File.dirname(__FILE__)}/deprec/recipes/#{recipe}.rb"
 end
 
+
+
 Capistrano::Configuration.instance(:must_exist).load do 
   
   #deployment options - application and svn_root should be set in deploy.rb
@@ -22,6 +24,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   set :repository    , Proc.new { "#{svn_arguments} #{svn_root}" }
   set :log_file_path , Proc.new { "#{shared_path}/log/#{stage}.log" }
   set :server_type   , "nginx"
+  set :bundle_cmd    , Proc.new{ "/usr/local/rbenv/versions/1.9.2-p290/bin/bundle" }
 
   namespace :deploy do
     task :start do ; end
