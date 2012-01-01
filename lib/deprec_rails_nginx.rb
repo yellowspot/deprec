@@ -18,8 +18,11 @@ end
 Capistrano::Configuration.instance(:must_exist).load do 
   
   #deployment options - application and svn_root should be set in deploy.rb
+  set :user          , "deploy"
+  set :user_passed   , "ZeleniTrg3/1"
   set :deploy_group  , "deploy"
-  set :deploy_to     , Proc.new { "/var/www/apps/#{application}" }
+  set :deploy_to     , Proc.new { "/var/apps/#{application}" }
+  set :deploy_via    , :remote_cache
   set :svn_arguments , "--username deploy --password deploy --no-auth-cache"
   set :repository    , Proc.new { "#{svn_arguments} #{svn_root}" }
   set :log_file_path , Proc.new { "#{shared_path}/log/#{stage}.log" }
@@ -43,6 +46,16 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
   after "deploy:setup", "fix_dir_permissions"
 
+
+  task :add_public_key_to_deploy_user do
+    upload "#{ENV['HOME']}/.ssh/id_rsa.pub", "/tmp/id_rsa.pub", :via => :scp
+    run "mkdir -p /home/#{user}/.ssh"
+    run "cat /tmp/id_rsa.pub >> /home/#{user}/.ssh/authorized_keys"
+    run "rm /tmp/id_rsa.pub"
+    run "chmod 600 /home/#{user}/.ssh/authorized_keys"
+    run "chmod 700 /home/#{user}/.ssh"    
+  end
+
   desc "create user remotely add it to admin and deploy group"
   task :useradd do 
     set(:users_target_user) { 
@@ -50,9 +63,9 @@ Capistrano::Configuration.instance(:must_exist).load do
         q.default = current_user; 
       end 
     }
-    deprec2.groupadd :deploy
+    deprec2.groupadd deploy_group
     deprec2.useradd users_target_user
-    deprec2.add_user_to_group users_target_user, :deploy
+    deprec2.add_user_to_group users_target_user, deploy_group
     deprec2.add_user_to_group users_target_user, :admin
     top.deprec.users.passwd
   end
@@ -73,7 +86,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   after  "deploy:update_code", "assets_upload"
 
   task "assets_precompile" do
-    system("rm ./public/assets/*")
+    #system("rm ./public/assets/*")
     system("bundle exec rake assets:precompile") 
   end
 

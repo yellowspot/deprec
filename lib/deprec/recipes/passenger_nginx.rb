@@ -7,6 +7,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     set :passenger_nginx_install , "#{rbenv_root}/versions/1.9.2-p290/bin/passenger-install-nginx-module"
 
     set :ssl_on, false
+    set :passenger_max_pool_size, 4
 
     task :install do
       unless capture("if [ -e /opt/local/nginx ]; then echo 'installed' ; fi").empty?
@@ -64,7 +65,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     Helpers.define_config_tasks self, :passenger_nginx
 
     desc "Upload ssl certificate files to server, certificates should be stored in ./config/certs prefixed by domain name: www.examle.com.crt and www.example.com.key"
-    task :upload_ssl_cert do      
+    task :upload_ssl_certs do      
       sudo "mkdir -p /etc/nginx/certs"
       upload("./config/certs/#{domain}.crt", "/tmp/#{domain}.crt", :via => :scp)
       upload("./config/certs/#{domain}.key", "/tmp/#{domain}.key", :via => :scp)
