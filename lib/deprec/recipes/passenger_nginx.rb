@@ -63,7 +63,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     Helpers.define_config_tasks self, :passenger_nginx
 
-    desc "Upload ssl certificate files to server"
+    desc "Upload ssl certificate files to server, certificates should be stored in ./config/certs prefixed by domain name: www.examle.com.crt and www.example.com.key"
     task :upload_ssl_cert do      
       sudo "mkdir -p /etc/nginx/certs"
       upload("./config/certs/#{domain}.crt", "/tmp/#{domain}.crt", :via => :scp)
