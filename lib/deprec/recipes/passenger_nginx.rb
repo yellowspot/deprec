@@ -6,6 +6,8 @@ Capistrano::Configuration.instance(:must_exist).load do
     set :passenger_ruby          , "#{rbenv_root}/versions/1.9.2-p290/bin/ruby"
     set :passenger_nginx_install , "#{rbenv_root}/versions/1.9.2-p290/bin/passenger-install-nginx-module"
 
+    set :ssl_on, false
+
     task :install do
       unless capture("if [ -e /opt/local/nginx ]; then echo 'installed' ; fi").empty?
         logger.info "nginx is already installed"
@@ -56,9 +58,19 @@ Capistrano::Configuration.instance(:must_exist).load do
                                              {:template => 'logrotate.conf.erb',
                                                :path => '/etc/logrotate.d/god.conf',
                                                :mode => 0644,
-                                               :owner => 'root:root'}                                                                              ]
+                                               :owner => 'root:root'}
+                                            ]
 
     Helpers.define_config_tasks self, :passenger_nginx
+
+    desc "Upload ssl certificate files to server"
+    task :upload_ssl_cert do      
+      sudo "mkdir -p /etc/nginx/certs"
+      upload("./config/certs/#{domain}.crt", "/tmp/#{domain}.crt", :via => :scp)
+      upload("./config/certs/#{domain}.key", "/tmp/#{domain}.key", :via => :scp)
+      sudo "mv /tmp/#{domain}.* /etc/nginx/certs/"
+      sudo "chmod 0600 /etc/nginx/certs/#{domain}.*"
+    end
 
   end
 end

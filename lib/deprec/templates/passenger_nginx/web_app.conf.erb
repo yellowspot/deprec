@@ -1,7 +1,14 @@
 server {
+
     listen 80;
-    server_name localhost;
+    server_name <%= domain %>;
     root <%= current_path %>/public;
+
+    <% if ssl_on %>
+    listen 443 default_server ssl;
+    ssl_certificate     /etc/nginx/certs/<%= domain %>.crt;
+    ssl_certificate_key /etc/nginx/certs/<%= domain %>.key;
+    <% end %>
 
     passenger_enabled on;
     passenger_min_instances 1;
