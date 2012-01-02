@@ -18,21 +18,20 @@ Capistrano::Configuration.instance(:must_exist).load do
   #deployment options - application and svn_root should be set in deploy.rb
   set :user          , "app"
   set :deploy_group  , "app"
-  set :use_sudo      , false
+  #set :use_sudo      , false
   set :deploy_to     , Proc.new { "/home/#{user}/apps/#{application}" }
   set :deploy_via    , :remote_cache
   set :svn_arguments , "--username deploy --password deploy --no-auth-cache"
   set :repository    , Proc.new { "#{svn_arguments} #{svn_root}" }
   set :log_file_path , Proc.new { "#{shared_path}/log/#{stage}.log" }
   set :server_type   , "nginx"
-  #set :bundle_cmd    , Proc.new{ "/usr/local/rbenv/versions/1.9.2-p290/bin/bundle" }
   set :bundle_flags  , "--deployment --quiet --binstubs --shebang ruby-local-exec"
 
   namespace :deploy do
     task :start do ; end
     task :stop  do ; end
     task :restart, :roles => :app, :except => { :no_release => true } do
-      run "#{try_sudo} touch #{File.join(current_path,'tmp','restart.txt')}"
+      run "touch #{File.join(current_path,'tmp','restart.txt')}"
     end
 
     desc "execute setp task as user, without sudo!"
