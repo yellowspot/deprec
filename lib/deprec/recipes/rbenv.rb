@@ -15,7 +15,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "Install rbenv"
     task :install do
-      unless capture("if [ -e /usr/local/rbenv/ ]; then echo 'installed' ; fi").empty?
+      unless capture("if [ -e ~/.rbenv ]; then echo 'installed' ; fi").empty?
         logger.info "rbenv is already installed"
         next
       end
@@ -23,19 +23,18 @@ Capistrano::Configuration.instance(:must_exist).load do
       install_rbenv
       config_gen
       config_push
-      #run "source /etc/profile.d/rbenv.sh"      
       install_build
     end
 
     task :install_rbenv do
-      run "#{sudo} rm -rf /usr/local/rbenv"
-      run "#{sudo} git clone git://github.com/sstephenson/rbenv.git /usr/local/rbenv"
+      run "rm -rf ~/.rbenv"
+      run "git clone git://github.com/sstephenson/rbenv.git ~/.rbenv"
     end
     
     task :install_build do
-      run "#{sudo} rm -rf /tmp/ruby-build"
-      run "#{sudo} git clone git://github.com/sstephenson/ruby-build.git /tmp/ruby-build"
-      run "#{sudo} sh -c 'cd /tmp/ruby-build; ./install.sh'"
+      run "rm -rf ~/tmp/ruby-build"
+      run "mkdir -p ~/tmp"
+      run "cd ~/tmp; git clone git://github.com/sstephenson/ruby-build.git; cd ruby-build; sudo ./install.sh"
     end
     
     task :install_deps do
@@ -46,36 +45,22 @@ Capistrano::Configuration.instance(:must_exist).load do
     ["ree-1.8.7-2011.03", "1.9.2-p290", "1.9.3-rc1"].each do |v|
       desc "Install ruby #{v}"      
       task "ruby_#{v.gsub(".","_").gsub("-", "_")}".to_sym do
-        if capture("#{rbenv_bin} versions").include?(v)
+        if capture("rbenv versions").include?(v)
           logger.info "Ruby #{v} is already installed"
           next
         end     
-        run "sudo #{rbenv_bin} install #{v}"
-        run "sudo #{rbenv_bin} global #{v}"
-        run "sudo #{rbenv_bin} rehash"
+        run "rbenv install #{v}"
+        run "rbenv global #{v}"
+        run "rbenv rehash"
       end
     end
 
-#    task :set_environment do
-      set :rbenv_root, "/usr/local/rbenv"
-      set :rbenv_bin, "RBENV_ROOT=#{rbenv_root} /usr/local/rbenv/bin/rbenv"
-      set :rbenv_sudo_path, "PATH=#{rbenv_root}/shims:#{rbenv_root}/bin:$PATH RBENV_ROOT=#{rbenv_root}"
+    set :rbenv_root, "/home/app/.rbenv"
 
-      set :default_environment, {
-        'PATH' => "#{rbenv_root}/shims:#{rbenv_root}/bin:$PATH",
-        'RBENV_ROOT' => rbenv_root
-      }
-#    end
+    set :default_environment, {
+      'PATH' => "#{rbenv_root}/shims:#{rbenv_root}/bin:$PATH",
+      'RBENV_ROOT' => rbenv_root
+    }
 
   end
 end
-
-module CapRbenv
-  
-  def sudo(command)
-    run "sudo sh -c '#{rbenv_sudo_path} #{command}'"
-  end
-
-end
-
-Capistrano.plugin :cap_rbenv, CapRbenv

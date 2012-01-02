@@ -13,21 +13,20 @@ $: << File.expand_path(File.join(File.dirname(__FILE__), "deprec", "recipes"))
   require "#{File.dirname(__FILE__)}/deprec/recipes/#{recipe}.rb"
 end
 
-
-
 Capistrano::Configuration.instance(:must_exist).load do 
   
   #deployment options - application and svn_root should be set in deploy.rb
-  set :user          , "deploy"
-  set :user_passed   , "ZeleniTrg3/1"
-  set :deploy_group  , "deploy"
-  set :deploy_to     , Proc.new { "/var/apps/#{application}" }
+  set :user          , "app"
+  set :deploy_group  , "app"
+  set :use_sudo      , false
+  set :deploy_to     , Proc.new { "/home/#{user}/apps/#{application}" }
   set :deploy_via    , :remote_cache
   set :svn_arguments , "--username deploy --password deploy --no-auth-cache"
   set :repository    , Proc.new { "#{svn_arguments} #{svn_root}" }
   set :log_file_path , Proc.new { "#{shared_path}/log/#{stage}.log" }
   set :server_type   , "nginx"
-  set :bundle_cmd    , Proc.new{ "/usr/local/rbenv/versions/1.9.2-p290/bin/bundle" }
+  #set :bundle_cmd    , Proc.new{ "/usr/local/rbenv/versions/1.9.2-p290/bin/bundle" }
+  set :bundle_flags  , "--deployment --quiet --binstubs --shebang ruby-local-exec"
 
   namespace :deploy do
     task :start do ; end
@@ -35,16 +34,25 @@ Capistrano::Configuration.instance(:must_exist).load do
     task :restart, :roles => :app, :except => { :no_release => true } do
       run "#{try_sudo} touch #{File.join(current_path,'tmp','restart.txt')}"
     end
+
+    desc "execute setp task as user, without sudo!"
+    task :setup, :except => { :no_release => true } do
+      dirs = [deploy_to, releases_path, shared_path]
+      dirs += shared_children.map { |d| File.join(shared_path, d) }
+      run "mkdir -p #{dirs.join(' ')}"
+      run "chmod g+w #{dirs.join(' ')}" if fetch(:group_writable, true)
+    end
+
   end
 
-  desc "change group to deploy_group (default is deploy) on dirs created during deploy:setup"
-  task :fix_dir_permissions do
-    dirs = [deploy_to, releases_path, shared_path]
-    dirs += shared_children.map { |d| File.join(shared_path, d) }
-    group = deploy_group || "admin"
-    run "#{try_sudo} chgrp #{group} #{dirs.join(' ')}"
-  end
-  after "deploy:setup", "fix_dir_permissions"
+  # desc "change group to deploy_group (default is deploy) on dirs created during deploy:setup"
+  # task :fix_dir_permissions do
+  #   dirs = [deploy_to, releases_path, shared_path]
+  #   dirs += shared_children.map { |d| File.join(shared_path, d) }
+  #   group = deploy_group || "admin"
+  #   run "#{try_sudo} chgrp #{group} #{dirs.join(' ')}"
+  # end
+  # after "deploy:setup", "fix_dir_permissions"
 
 
   task :add_public_key_to_deploy_user do
