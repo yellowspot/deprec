@@ -21,7 +21,7 @@ Capistrano::Configuration.instance(:must_exist).load do
  
     task :passenger do
       apt.get %w(libcurl4-openssl-dev libpcre3 libpcre3-dev)
-      run "gem install passenger --version=#{passenger_version} --no-rdoc --no-ri"
+      sudo "gem install passenger --version=#{passenger_version} --no-rdoc --no-ri"
       sudo "#{passenger_nginx_install} --auto --auto-download --prefix=/opt/nginx --extra-configure-flags='--with-http_gzip_static_module --with-http_ssl_module'"
     end
 

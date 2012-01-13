@@ -18,6 +18,11 @@ module Helpers
     that.task :config_push, :roles => :app do
       deprec2.push_configs(key, SYSTEM_CONFIG_FILES[key])
     end
-  end
 
+    that.task :config do
+      config_gen
+      config_push
+    end
+  end
+  
 end

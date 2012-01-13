@@ -4,6 +4,12 @@ require 'git'
 Capistrano::Configuration.instance(:must_exist).load do 
   namespace :rbenv do
 
+    set :rbenv_root, "/usr/local/rbenv"
+    set :default_environment, {
+      'PATH' => "#{rbenv_root}/shims:#{rbenv_root}/bin:$PATH",
+      'RBENV_ROOT' => rbenv_root
+    }
+
     SYSTEM_CONFIG_FILES[:rbenv] = [
                                    {:template => 'rbenv.sh.erb',
                                      :path => '/etc/profile.d/rbenv.sh',
@@ -15,26 +21,26 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "Install rbenv"
     task :install do
-      unless capture("if [ -e ~/.rbenv ]; then echo 'installed' ; fi").empty?
+      unless capture("if [ -e #{rbenv_root} ]; then echo 'installed' ; fi").empty?
         logger.info "rbenv is already installed"
         next
       end
       install_deps
       install_rbenv
-      config_gen
-      config_push
+      config
+      #sudo "source /etc/profile.d/rbenv.sh"
       install_build
     end
 
     task :install_rbenv do
-      run "rm -rf ~/.rbenv"
-      run "git clone git://github.com/sstephenson/rbenv.git ~/.rbenv"
+      sudo "rm -rf #{rbenv_root}"
+      sudo "git clone git://github.com/sstephenson/rbenv.git #{rbenv_root}"
     end
     
     task :install_build do
-      run "rm -rf ~/tmp/ruby-build"
-      run "mkdir -p ~/tmp"
-      run "cd ~/tmp; git clone git://github.com/sstephenson/ruby-build.git; cd ruby-build; sudo ./install.sh"
+      sudo "rm -rf /tmp/ruby-build"
+      sudo "git clone git://github.com/sstephenson/ruby-build.git /tmp/ruby-build"
+      sudo "sh -c 'cd /tmp/ruby-build; ./install.sh'"
     end
     
     task :install_deps do
@@ -49,18 +55,11 @@ Capistrano::Configuration.instance(:must_exist).load do
           logger.info "Ruby #{v} is already installed"
           next
         end     
-        run "rbenv install #{v}"
-        run "rbenv global #{v}"
-        run "rbenv rehash"
+        run "sudo -i rbenv install #{v}"
+        run "sudo -i rbenv global #{v}"
+        run "sudo -i rbenv rehash"
       end
     end
-
-    set :rbenv_root, "/home/app/.rbenv"
-
-    set :default_environment, {
-      'PATH' => "#{rbenv_root}/shims:#{rbenv_root}/bin:$PATH",
-      'RBENV_ROOT' => rbenv_root
-    }
 
   end
 end
