@@ -28,7 +28,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         auth_keys_dir = 'config/ssh/authorized_keys'
         if ! File.directory?(auth_keys_dir)
           puts "Creating #{auth_keys_dir}"
-          Dir.mkdir(auth_keys_dir)
+          FileUtils.mkdir_p(auth_keys_dir)
         end
       end
       
@@ -40,22 +40,22 @@ Capistrano::Configuration.instance(:must_exist).load do
 
       desc "Start ssh"
       task :start do
-        send(run_method, "/etc/init.d/ssh reload")
+        reload
       end
     
       desc "Stop ssh"
       task :stop do
-        send(run_method, "/etc/init.d/ssh reload")
+        reload
       end
     
       desc "Restart ssh"
       task :restart do
-        send(run_method, "/etc/init.d/ssh restart")
+        send(run_method, "service ssh restart")
       end
     
       desc "Reload ssh"
       task :reload do
-        send(run_method, "/etc/init.d/ssh reload")
+        send(run_method, "service ssh reload")
       end
       
       desc "Sets up authorized_keys file on remote server"

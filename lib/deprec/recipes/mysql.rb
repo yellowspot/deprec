@@ -49,22 +49,24 @@ Capistrano::Configuration.instance(:must_exist).load do
       
       desc "Start Mysql"
       task :start, :roles => :db do
-        send(run_method, "/etc/init.d/mysql start")
+        send(run_method, "service mysql start")
       end
       
       desc "Stop Mysql"
       task :stop, :roles => :db do
-        send(run_method, "/etc/init.d/mysql stop")
+        send(run_method, "service mysql stop")
       end
       
       desc "Restart Mysql"
       task :restart, :roles => :db do
-        send(run_method, "/etc/init.d/mysql restart")
+        #send(run_method, "/etc/init.d/mysql restart")
+        send(run_method, "service mysql restart")
       end
       
       desc "Reload Mysql"
       task :reload, :roles => :db do
-        send(run_method, "/etc/init.d/mysql reload")
+        #send(run_method, "/etc/init.d/mysql reload")
+        send(run_method, "service mysql reload")
       end
      
 
@@ -90,7 +92,11 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
 
       task :set_admin_password do
-        run "mysqladmin -u root password #{mysql_admin_pass}"
+        begin
+          run "mysqladmin -u root password #{mysql_admin_pass}" 
+        rescue 
+          logger.important "could not change admin password"
+        end
       end
             
     end

@@ -55,7 +55,10 @@ require "#{File.dirname(__FILE__)}/recipes/lvm"
 require "#{File.dirname(__FILE__)}/recipes/vnstat"
 require "#{File.dirname(__FILE__)}/recipes/utils"
 
-require "#{File.dirname(__FILE__)}/minus5_recipes"
+require "#{File.dirname(__FILE__)}/recipes/timezone"
+require "#{File.dirname(__FILE__)}/recipes/config"
+
+#require "#{File.dirname(__FILE__)}/minus5_recipes"
 
 # Retired recipes
 #
