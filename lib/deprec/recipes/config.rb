@@ -20,5 +20,14 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
     end
 
+    desc "Pull configs from server"
+    task :pull do
+      project_config_files.each do |file|
+        path = file[:path]
+        full_path = File.join('config', stage.to_s, path)
+        get(path, full_path)
+      end
+    end
+
   end
 end

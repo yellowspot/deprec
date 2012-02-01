@@ -206,6 +206,7 @@ module Deprec2
     switches += " --shell=#{options[:shell]} " if options[:shell]
     switches += ' --create-home ' unless options[:homedir] == false
     switches += " --gid #{options[:group]} " unless options[:group].nil?
+    switches += " --password '#{options[:password]}' " unless options[:password].nil?
     invoke_command "grep '^#{user}:' /etc/passwd || #{sudo} /usr/sbin/useradd #{switches} #{user}",
     :via => run_method
   end

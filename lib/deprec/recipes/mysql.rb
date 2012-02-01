@@ -49,7 +49,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       
       desc "Start Mysql"
       task :start, :roles => :db do
-        send(run_method, "service mysql start")
+        send(run_method, "service mysql start; exit 0")
       end
       
       desc "Stop Mysql"
